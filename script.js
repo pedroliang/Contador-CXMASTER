@@ -16,10 +16,12 @@ const exportBtn = document.getElementById('export-btn');
 const clearBtn = document.getElementById('clear-btn');
 const processoInput = document.getElementById('processo');
 const clienteInput = document.getElementById('cliente');
+const sessionSelect = document.getElementById('session-select');
 
 // Initialize
 function init() {
     loadFromLocalStorage();
+    loadHistory();
     renderCounters();
     setupEventListeners();
 }
@@ -28,14 +30,7 @@ function init() {
 function setupEventListeners() {
     addCounterBtn.addEventListener('click', addCounter);
     saveBtn.addEventListener('click', saveToLocalStorage);
-    loadBtn.addEventListener('click', () => {
-        if (loadFromLocalStorage()) {
-            renderCounters();
-            alert('Progresso carregado com sucesso!');
-        } else {
-            alert('Nenhum dado salvo encontrado.');
-        }
-    });
+    loadBtn.addEventListener('click', loadSelectedSession);
     exportBtn.addEventListener('click', exportToExcel);
     clearBtn.addEventListener('click', clearAll);
     
@@ -51,7 +46,7 @@ function setupEventListeners() {
     });
 }
 
-// Load from LocalStorage
+// Load current session from LocalStorage (Auto-load on refresh)
 function loadFromLocalStorage() {
     const savedState = localStorage.getItem('contadorCXMState');
     if (savedState) {
@@ -63,12 +58,76 @@ function loadFromLocalStorage() {
     return false;
 }
 
-// Save to LocalStorage
+// Load history and populate select
+function loadHistory() {
+    const history = JSON.parse(localStorage.getItem('contadorCXMHistory') || '[]');
+    sessionSelect.innerHTML = '<option value="">Selecione uma gravação...</option>';
+    
+    history.forEach((session, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = `${session.processo || 'S/P'} - ${session.cliente || 'S/C'} (${new Date(session.timestamp).toLocaleString()})`;
+        sessionSelect.appendChild(option);
+    });
+}
+
+// Save to LocalStorage (Current and History)
 function saveToLocalStorage() {
     state.processo = processoInput.value;
     state.cliente = clienteInput.value;
+    
+    // Save current session
     localStorage.setItem('contadorCXMState', JSON.stringify(state));
-    alert('Progresso salvo localmente com sucesso!');
+    
+    // Save to history
+    const history = JSON.parse(localStorage.getItem('contadorCXMHistory') || '[]');
+    
+    // Find if session exists (by process and client)
+    const existingIndex = history.findIndex(s => s.processo === state.processo && s.cliente === state.cliente);
+    
+    const sessionData = {
+        processo: state.processo,
+        cliente: state.cliente,
+        counters: state.counters,
+        timestamp: new Date().getTime()
+    };
+    
+    if (existingIndex >= 0) {
+        history[existingIndex] = sessionData; // Update
+    } else {
+        history.push(sessionData); // Add new
+    }
+    
+    localStorage.setItem('contadorCXMHistory', JSON.stringify(history));
+    loadHistory(); // Refresh dropdown
+    alert('Progresso salvo com sucesso!');
+}
+
+// Load selected session from history
+function loadSelectedSession() {
+    const selectedIndex = sessionSelect.value;
+    if (selectedIndex === '') {
+        alert('Por favor, selecione uma gravação para carregar.');
+        return;
+    }
+    
+    const history = JSON.parse(localStorage.getItem('contadorCXMHistory') || '[]');
+    const selectedSession = history[selectedIndex];
+    
+    if (selectedSession) {
+        state.processo = selectedSession.processo;
+        state.cliente = selectedSession.cliente;
+        state.counters = selectedSession.counters;
+        
+        processoInput.value = state.processo || '';
+        clienteInput.value = state.cliente || '';
+        
+        // Update current session storage so refresh works on this one
+        localStorage.setItem('contadorCXMState', JSON.stringify(state));
+        
+        renderCounters();
+        alert('Gravação carregada com sucesso!');
+    }
 }
 
 // Add Counter
@@ -171,13 +230,13 @@ window.deleteCounter = function(index) {
     }
 };
 
-// Clear All
+// Clear All (Only clears current screen, keeps history)
 function clearAll() {
-    if (confirm('Tem certeza que deseja limpar todos os dados?')) {
+    if (confirm('Tem certeza que deseja limpar a tela atual? O histórico salvo NÃO será apagado.')) {
         state = { processo: '', cliente: '', counters: [] };
         processoInput.value = '';
         clienteInput.value = '';
-        localStorage.removeItem('contadorCXMState');
+        localStorage.removeItem('contadorCXMState'); // Clear auto-load state
         renderCounters();
     }
 }
