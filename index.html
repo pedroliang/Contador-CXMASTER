@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centralux Contador CXM</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Fallback or critical CSS */
+        body { font-family: 'Outfit', sans-serif; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Centralux Contador CXM</h1>
+            <p class="subtitle">Sistema de Contagem de Caixas Master</p>
+        </header>
+
+        <section class="metadata-section">
+            <div class="input-group">
+                <label for="processo">Nome do Processo</label>
+                <input type="text" id="processo" placeholder="Ex: Carga 01/2026">
+            </div>
+            <div class="input-group">
+                <label for="cliente">Nome do Cliente</label>
+                <input type="text" id="cliente" placeholder="Ex: Cliente XYZ">
+            </div>
+        </section>
+
+        <section class="control-section">
+            <div class="add-counter-form">
+                <input type="text" id="new-code" placeholder="Código da Caixa">
+                <input type="number" id="new-total" placeholder="Total (Opcional para Regressivo)">
+                <div class="mode-selector">
+                    <label>
+                        <input type="radio" name="counting-mode" value="progressive" checked> Progressivo
+                    </label>
+                    <label>
+                        <input type="radio" name="counting-mode" value="regressive"> Regressivo
+                    </label>
+                </div>
+                <button id="add-counter-btn" class="btn primary">Adicionar Caixa</button>
+            </div>
+        </section>
+
+        <main class="counters-grid" id="counters-container">
+            <!-- Counters will be rendered here dynamically -->
+        </main>
+
+        <section class="actions-section">
+            <button id="save-btn" class="btn secondary">Salvar Progresso</button>
+            <button id="export-btn" class="btn success">Gerar Excel</button>
+            <button id="clear-btn" class="btn danger">Limpar Tudo</button>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Centralux. Todos os direitos reservados.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
