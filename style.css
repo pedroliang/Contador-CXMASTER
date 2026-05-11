@@ -243,13 +243,13 @@ input[type="number"]:focus {
 }
 
 .counter-btn {
-    width: 54px;
-    height: 54px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     border: none;
     background: rgba(255, 255, 255, 0.1);
     color: var(--text-primary);
-    font-size: 1.5rem;
+    font-size: 2.5rem;
     cursor: pointer;
     display: flex;
     justify-content: center;
