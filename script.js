@@ -11,6 +11,7 @@ const addCounterBtn = document.getElementById('add-counter-btn');
 const newCodeInput = document.getElementById('new-code');
 const newTotalInput = document.getElementById('new-total');
 const saveBtn = document.getElementById('save-btn');
+const loadBtn = document.getElementById('load-btn');
 const exportBtn = document.getElementById('export-btn');
 const clearBtn = document.getElementById('clear-btn');
 const processoInput = document.getElementById('processo');
@@ -27,6 +28,14 @@ function init() {
 function setupEventListeners() {
     addCounterBtn.addEventListener('click', addCounter);
     saveBtn.addEventListener('click', saveToLocalStorage);
+    loadBtn.addEventListener('click', () => {
+        if (loadFromLocalStorage()) {
+            renderCounters();
+            alert('Progresso carregado com sucesso!');
+        } else {
+            alert('Nenhum dado salvo encontrado.');
+        }
+    });
     exportBtn.addEventListener('click', exportToExcel);
     clearBtn.addEventListener('click', clearAll);
     
@@ -49,7 +58,9 @@ function loadFromLocalStorage() {
         state = JSON.parse(savedState);
         processoInput.value = state.processo || '';
         clienteInput.value = state.cliente || '';
+        return true;
     }
+    return false;
 }
 
 // Save to LocalStorage
